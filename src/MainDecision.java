@@ -150,7 +150,7 @@ public class MainDecision {
         sentence = Preprocess.arabic2farsi_plural_replacement(sentence);
         sentence = Preprocess.word_concatenation(sentence);
         sentence = Preprocess.ha_hay_removal(sentence);
-        sentence ="ااا" + sentence + "ااا";
+        sentence = "ااا" + sentence + "ااا";
 
         boolean is_there_conflict = false;
         boolean vip_detected = false;
@@ -158,10 +158,6 @@ public class MainDecision {
         for (String s : Preprocess.vip_keywords.keySet()) {
 
         }
-
-
-
-
 
 
         return rule_based_probs;
