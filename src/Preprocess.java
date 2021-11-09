@@ -387,23 +387,6 @@ public class Preprocess {
                     new String[]{"بلک لیست"},
                     new String[]{"بلاک"}
             });
-            put("SUPPORT_NETWORK_AREA", new String[][]{new String[]{"اینترنت", "پوشش"},
-                    new String[]{"اینترنت", "ساپورت"},
-                    new String[]{"پوشش", "محدوده"},
-                    new String[]{"پوشش", "ناحیه"},
-                    new String[]{"ساپورت", "ناحیه"},
-                    new String[]{"اینترنت", "منطقه"},
-                    new String[]{"پوشش", "منطقه"},
-                    new String[]{"اینترنت", "ناحیه"},
-                    new String[]{"اینترنت", "محدوده"},
-                    new String[]{"اینترنت", "منطقه"},
-                    new String[]{"آنتن"},
-                    new String[]{"پوشش", "کجا"},
-                    new String[]{"آنتن"},
-                    new String[]{"ساپورت", "کجا"},
-                    new String[]{"کییفیت", "منطقه"},
-                    new String[]{"کییفیت", "ناحیه"}
-            });
 
         }
     };
@@ -490,9 +473,9 @@ public class Preprocess {
         String[] words = sentence.split(" ");
         StringBuilder res = new StringBuilder();
         for (String word : words) {
-            if ((word.endsWith("ها") && word.length() != 2) || (word.endsWith("های") && word.length() != 3) ||
+            if (((word.endsWith("ها") && word.length() != 2) || (word.endsWith("های") && word.length() != 3) ||
                     (word.endsWith("هائی") && word.length() != 4) ||
-                    (word.endsWith("هایی") && word.length() != 4)) {
+                    (word.endsWith("هایی") && word.length() != 4)) && !ok_dictionary.contains(word)) {
                 if (word.endsWith("ها")) {
                     res.append(word, 0, word.length() - 2).append(" ").append("ها").append(" ");
                 }

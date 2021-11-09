@@ -6,6 +6,7 @@ public class MainDecision {
         temp.add(true);
         System.out.println(temp.contains(false));
     }
+
     public static boolean all_kw_match(String sentence, String[] kw_list) {
         boolean res = true;
         for (String s : kw_list) {
@@ -239,61 +240,55 @@ public class MainDecision {
         }
 
         temp = new ArrayList<>();
-        for (String kw : new String[]{"افزایش","شارژ","اضاف"}) {
-            if (sentence.contains(kw)){
+        for (String kw : new String[]{"افزایش", "شارژ", "اضاف"}) {
+            if (sentence.contains(kw)) {
                 temp.add(true);
-            }
-            else {
+            } else {
                 temp.add(false);
             }
         }
-        if (rule_based_probs.get("MY_WALLET") == vip_score && (temp.contains(true))){
+        if (rule_based_probs.get("MY_WALLET") == vip_score && (temp.contains(true))) {
             rule_based_probs.replace("MY_WALLET", 0.0);
-            rule_based_probs.replace("CHARGE_WALLET",rule_based_probs.get("CHARGE_WALLET")+vip_score);
+            rule_based_probs.replace("CHARGE_WALLET", rule_based_probs.get("CHARGE_WALLET") + vip_score);
         }
 
         temp = new ArrayList<>();
-        for (String kw : new String[]{"واریز","تراکنش"}) {
-            if (sentence.contains(kw)){
+        for (String kw : new String[]{"واریز", "تراکنش"}) {
+            if (sentence.contains(kw)) {
                 temp.add(true);
-            }
-            else {
+            } else {
                 temp.add(false);
             }
         }
-        if (rule_based_probs.get("MY_WALLET") == vip_score && (temp.contains(true))){
+        if (rule_based_probs.get("MY_WALLET") == vip_score && (temp.contains(true))) {
             rule_based_probs.replace("MY_WALLET", 0.0);
-            rule_based_probs.replace("TRANSACTION",rule_based_probs.get("TRANSACTION")+vip_score);
+            rule_based_probs.replace("TRANSACTION", rule_based_probs.get("TRANSACTION") + vip_score);
         }
         ArrayList<String> non_zeros = new ArrayList<>();
         for (String s : rule_based_probs.keySet()) {
-            if (rule_based_probs.get(s)!=0){
+            if (rule_based_probs.get(s) != 0) {
                 non_zeros.add(s);
             }
         }
         int conflict_level = non_zeros.size();
-        if (conflict_level!=0){
+        if (conflict_level != 0) {
             conflict_level = -1;
         }
 
-        if (conflict_level > 0){
+        if (conflict_level > 0) {
             ArrayList<String> selected_vip_sc = non_zeros;
-            String [] no_price_list =new String[] {"SIM_STATUS","VOICEMAIL"};
-            if (action_type_flag.get("price")==1){
+            String[] no_price_list = new String[]{"SIM_STATUS", "VOICEMAIL"};
+            if (action_type_flag.get("price") == 1) {
                 for (String k : no_price_list) {
-                    rule_based_probs.replace(k,0.0);
+                    rule_based_probs.replace(k, 0.0);
                 }
             }
 
-            if  (selected_vip_sc.contains("RBT") && selected_vip_sc.contains("VOICEMAIL")){
-                rule_based_probs.replace("RBT",0.0);
+            if (selected_vip_sc.contains("RBT") && selected_vip_sc.contains("VOICEMAIL")) {
+                rule_based_probs.replace("RBT", 0.0);
             }
 
         }
-
-
-
-
 
 
         ///////////////////////////////////////////////////////
