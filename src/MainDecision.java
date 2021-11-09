@@ -312,7 +312,7 @@ public class MainDecision {
                 }
                 if (special_kw_farsi[i].equals("شارژ")) {
                     boolean charge_local_flag = false;
-                    if (any_kw_match(sentence, new String[]{"فرست", "منتقل", "انتقال"}) && !charge_local_flag) {
+                    if (any_kw_match(sentence, new String[]{"فرست", "منتقل", "انتقال"})) {
                         curr_sc_2.add("TRANSFER_CREDIT");
                         curr_sc_1.add("TRANSFER_CREDIT");
                         charge_local_flag = true;
@@ -398,9 +398,7 @@ public class MainDecision {
                     rule_based_probs.put(key, 1.0);
                 }
             }
-            for (String key : rule_based_probs.keySet()) {
-                rule_based_probs.put(key, Math.pow(rule_based_probs.get(key), exponent));
-            }
+            rule_based_probs.replaceAll((k, v) -> Math.pow(rule_based_probs.get(k), exponent));
             temp_sum = sumDouble(rule_based_probs.values());
             for (String key : rule_based_probs.keySet()) {
                 rule_based_probs.put(key, rule_based_probs.get(key) / temp_sum);
