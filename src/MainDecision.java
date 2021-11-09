@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class MainDecision {
     public static void main(String[] args) {
@@ -34,6 +31,7 @@ public class MainDecision {
     static int vip_score = 20;
     static int special_score = 5;
     static float epsilon = (float) (1.0 / 48);
+    static double exponent = 3;
 
     static HashMap<String, String> subcat2cat = new HashMap<>() {{
 
@@ -213,13 +211,13 @@ public class MainDecision {
 
 /////////////////////////////////
         if (rule_based_probs.get("SUPPORT_NETWORK_AREA") != 0 && rule_based_probs.get("BUY_NET_PACKAGE") != 0) {
-            rule_based_probs.replace("BUY_NET_PACKAGE", 0.0F);
+            rule_based_probs.replace("BUY_NET_PACKAGE", 0.0);
         }
         if (rule_based_probs.get("SURVEY") != 0 && rule_based_probs.get("SUGGESTIONS") != 0) {
-            rule_based_probs.replace("SUGGESTIONS", 0.0F);
+            rule_based_probs.replace("SUGGESTIONS", 0.0);
         }
         if (rule_based_probs.get("SIM_STATUS") != 0 && any_kw_match(sentence, new String[]{"شارژ", "مصرف"})) {
-            rule_based_probs.replace("SIM_STATUS", 0.0F);
+            rule_based_probs.replace("SIM_STATUS", 0.0);
         }
 
 
