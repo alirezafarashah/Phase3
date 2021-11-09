@@ -186,57 +186,54 @@ public class MainDecision {
         comm_type_keywords.put("sms", new String[]{"پیامک"});
         comm_type_keywords.put("internet", new String[]{"اینترنت", "ااانت ", " نتااا", " نت ", "حجم"});
 
-        HashMap<String,Integer> comm_type_flag = new HashMap<>();
+        HashMap<String, Integer> comm_type_flag = new HashMap<>();
         for (String s : comm_type_keywords.keySet()) {
-            comm_type_flag.put(s,0);
+            comm_type_flag.put(s, 0);
         }
 
-        HashMap<String,Integer> action_type_flag = new HashMap<>();
+        HashMap<String, Integer> action_type_flag = new HashMap<>();
         for (String s : action_type_keywords.keySet()) {
-            action_type_flag.put(s,0);
+            action_type_flag.put(s, 0);
         }
         for (String s : action_type_keywords.keySet()) {
-            if (any_kw_match(sentence,action_type_keywords.get(s))){
-                action_type_flag.replace(s,1);
+            if (any_kw_match(sentence, action_type_keywords.get(s))) {
+                action_type_flag.replace(s, 1);
             }
         }
         for (String s : comm_type_keywords.keySet()) {
-            if (any_kw_match(sentence,comm_type_keywords.get(s))){
-                comm_type_flag.replace(s,1);
+            if (any_kw_match(sentence, comm_type_keywords.get(s))) {
+                comm_type_flag.replace(s, 1);
             }
         }
 
 /////////////////////////////////
-        if (rule_based_probs.get("SUPPORT_NETWORK_AREA") != 0 && rule_based_probs.get("BUY_NET_PACKAGE") != 0){
+        if (rule_based_probs.get("SUPPORT_NETWORK_AREA") != 0 && rule_based_probs.get("BUY_NET_PACKAGE") != 0) {
             rule_based_probs.replace("BUY_NET_PACKAGE", 0.0F);
         }
-        if (rule_based_probs.get("SURVEY") != 0 && rule_based_probs.get("SUGGESTIONS") != 0){
+        if (rule_based_probs.get("SURVEY") != 0 && rule_based_probs.get("SUGGESTIONS") != 0) {
             rule_based_probs.replace("SUGGESTIONS", 0.0F);
         }
-        if (rule_based_probs.get("SIM_STATUS") != 0 && any_kw_match(sentence,new String[]{"شارژ","مصرف"})){
+        if (rule_based_probs.get("SIM_STATUS") != 0 && any_kw_match(sentence, new String[]{"شارژ", "مصرف"})) {
             rule_based_probs.replace("SIM_STATUS", 0.0F);
         }
 
 
 ////////////////////////////
-        if (any_kw_match(sentence, new String[]{"منتقل","انتقال"})&& action_type_flag.get("price") == 1){
-            rule_based_probs.replace("TRANSFER_CREDIT",rule_based_probs.get("TRANSFER_CREDIT")+vip_score);
+        if (any_kw_match(sentence, new String[]{"منتقل", "انتقال"}) && action_type_flag.get("price") == 1) {
+            rule_based_probs.replace("TRANSFER_CREDIT", rule_based_probs.get("TRANSFER_CREDIT") + vip_score);
         }
 
-        ArrayList<Boolean> temp= new ArrayList<>();
+        ArrayList<Boolean> temp = new ArrayList<>();
         for (String kw : new String[]{"باشگاه", "امتیاز"}) {
-            if (sentence.contains(kw)){
+            if (sentence.contains(kw)) {
                 temp.add(true);
-            }
-            else {
+            } else {
                 temp.add(false);
             }
         }
-        if (temp.contains(true) && (action_type_flag.get("price") == 1 ||action_type_flag.get("status")==1)){
-            rule_based_probs.replace("CLUB_REQUEST_SCORE",rule_based_probs.get("CLUB_REQUEST_SCORE")+vip_score);
+        if (temp.contains(true) && (action_type_flag.get("price") == 1 || action_type_flag.get("status") == 1)) {
+            rule_based_probs.replace("CLUB_REQUEST_SCORE", rule_based_probs.get("CLUB_REQUEST_SCORE") + vip_score);
         }
-
-
 
 
         ///////////////////////////////////////////////////////
@@ -255,18 +252,20 @@ public class MainDecision {
                 }
                 if (special_kw_farsi[i].equals("شارژ")) {
                     boolean charge_local_flag = false;
-                    if (any_kw_match(sentence, new String[] {"فرست", "منتقل", "انتقال"}) && !charge_local_flag) {
+                    if (any_kw_match(sentence, new String[]{"فرست", "منتقل", "انتقال"}) && !charge_local_flag) {
                         curr_sc_2.add("TRANSFER_CREDIT");
                         curr_sc_1.add("TRANSFER_CREDIT");
                         charge_local_flag = true;
                     }
-                    if (action_type_flag['demand'] == 1 || action_type_flag['price'] == 1 && !charge_local_flag):
-                    curr_sc_2.add("BUY_CHARGE");
-                    charge_local_flag = true;
+                    if (action_type_flag.get("demand") == 1 || action_type_flag.get("price") == 1 && !charge_local_flag) {
+                        curr_sc_2.add("BUY_CHARGE");
+                        charge_local_flag = true;
+                    }
+
                 }
             }
         }
-            return rule_based_probs;
+        return rule_based_probs;
 
     }
 
