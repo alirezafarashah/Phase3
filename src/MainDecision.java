@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Set;
 
 public class MainDecision {
     public boolean all_kw_match(String sentence, String[] kw_list) {
@@ -159,6 +160,14 @@ public class MainDecision {
 
         }
 
+        ///////////////////////////////////////////////////////
+        //////////////// Special Keyword stage ////////////////
+        ///////////////////////////////////////////////////////
+
+        String[] special_kw_farsi = new String[]{"صورتحساب","شارژ","باشگاه","بسته"};
+        String[] special_category = new String[]{"BILL","CHARGE","CLUB","PACKAGE"};
+
+        Set<String> curr_sc_1;
 
         return rule_based_probs;
 
