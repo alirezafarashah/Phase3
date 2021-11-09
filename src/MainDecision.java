@@ -1,9 +1,10 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 public class MainDecision {
     public static void main(String[] args) {
-        ArrayList <Boolean>temp = new ArrayList<>();
+        ArrayList<Boolean> temp = new ArrayList<>();
         temp.add(true);
         System.out.println(temp.contains(false));
     }
@@ -31,7 +32,7 @@ public class MainDecision {
 
     static int vip_score = 20;
     static int special_score = 5;
-    static float epsilon = (float) (1.0 / 48);
+    static double epsilon = (double) (1.0 / 48);
 
     static HashMap<String, String> subcat2cat = new HashMap<>() {{
 
@@ -147,10 +148,10 @@ public class MainDecision {
         }
     };
 
-    public static HashMap<String, Float> decisions_probs(String sentence) {
-        HashMap<String, Float> rule_based_probs = new HashMap<>();
+    public static HashMap<String, Double> decisions_probs(String sentence) {
+        HashMap<String, Double> rule_based_probs = new HashMap<>();
         for (String s : subcats) {
-            rule_based_probs.put(s, (float) 0.0);
+            rule_based_probs.put(s, (double) 0.0);
         }
         sentence = Preprocess.nim_fasele_removal(sentence);
         sentence = Preprocess.arabic2farsi_plural_replacement(sentence);
@@ -212,13 +213,13 @@ public class MainDecision {
 
 /////////////////////////////////
         if (rule_based_probs.get("SUPPORT_NETWORK_AREA") != 0 && rule_based_probs.get("BUY_NET_PACKAGE") != 0){
-            rule_based_probs.replace("BUY_NET_PACKAGE", 0.0F);
+            rule_based_probs.replace("BUY_NET_PACKAGE", 0.0);
         }
         if (rule_based_probs.get("SURVEY") != 0 && rule_based_probs.get("SUGGESTIONS") != 0){
-            rule_based_probs.replace("SUGGESTIONS", 0.0F);
+            rule_based_probs.replace("SUGGESTIONS", 0.0);
         }
         if (rule_based_probs.get("SIM_STATUS") != 0 && any_kw_match(sentence,new String[]{"شارژ","مصرف"})){
-            rule_based_probs.replace("SIM_STATUS", 0.0F);
+            rule_based_probs.replace("SIM_STATUS", 0.0);
         }
 
 
@@ -250,7 +251,7 @@ public class MainDecision {
             }
         }
         if (rule_based_probs.get("MY_WALLET") == vip_score && (temp.contains(true))){
-            rule_based_probs.replace("MY_WALLET", 0.0F);
+            rule_based_probs.replace("MY_WALLET", 0.0);
             rule_based_probs.replace("CHARGE_WALLET",rule_based_probs.get("CHARGE_WALLET")+vip_score);
         }
 
@@ -264,7 +265,7 @@ public class MainDecision {
             }
         }
         if (rule_based_probs.get("MY_WALLET") == vip_score && (temp.contains(true))){
-            rule_based_probs.replace("MY_WALLET", 0.0F);
+            rule_based_probs.replace("MY_WALLET", 0.0);
             rule_based_probs.replace("TRANSACTION",rule_based_probs.get("TRANSACTION")+vip_score);
         }
         ArrayList<String> non_zeros = new ArrayList<>();
@@ -283,12 +284,12 @@ public class MainDecision {
             String [] no_price_list =new String[] {"SIM_STATUS","VOICEMAIL"};
             if (action_type_flag.get("price")==1){
                 for (String k : no_price_list) {
-                    rule_based_probs.replace(k,0);
+                    rule_based_probs.replace(k,0.0);
                 }
             }
 
-            if  selected_vip_sc.contains("RBT") && selected_vip_sc.contains("VOICEMAIL"){
-                rule_based_probs.replace("RBT",double(0));
+            if  (selected_vip_sc.contains("RBT") && selected_vip_sc.contains("VOICEMAIL")){
+                rule_based_probs.replace("RBT",0.0);
             }
 
         }
