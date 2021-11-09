@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class MainDecision {
-    public boolean all_kw_match(String sentence, String[] kw_list) {
+    public static boolean all_kw_match(String sentence, String[] kw_list) {
         boolean res = true;
         for (String s : kw_list) {
             if (!sentence.contains(s)) {
@@ -24,9 +24,9 @@ public class MainDecision {
         return res;
     }
 
-    int vip_score = 20;
-    int special_score = 5;
-    float epsilon = (float) (1.0 / 48);
+    static int vip_score = 20;
+    static int special_score = 5;
+    static float epsilon = (float) (1.0 / 48);
 
     static HashMap<String, String> subcat2cat = new HashMap<>() {{
 
@@ -157,8 +157,34 @@ public class MainDecision {
         boolean vip_detected = false;
 
         for (String s : Preprocess.vip_keywords.keySet()) {
-
+            ArrayList<Boolean> match_result = new ArrayList<>();
+            for (String[] strings : Preprocess.vip_keywords.get(s)) {
+                boolean temp = all_kw_match(sentence,strings);
+                match_result.add(temp);
+            }
+            if (match_result.contains(true)){
+                rule_based_probs.replace(s,rule_based_probs.get(s)+vip_score);
+                if (!vip_detected) {
+                    vip_detected = true;
+                }
+                else {
+                    is_there_conflict = true;
+                }
+            }
         }
+        HashMap<String,String []> action_type_keywords = new HashMap<>();
+        HashMap<String,String []> comm_type_keywords = new HashMap<>();
+
+        action_type_keywords.put("demand", new String[]{"میخوام","بخر","خرید","تقاضا","بگیر",
+                "خواستار","افزایش","تهیه","دریافت","کاهش"});
+        action_type_keywords.put("status", new String[]{"ببین","مشاهده","دیدن"," چک ","چقدر","وضعیت",
+                "باقیمانده","مانده","اااچه "," چه ","نمایش","چند","نشان","آیا "});
+        action_type_keywords.put("price", new String[]{"ریال","تومان","تومن"});
+
+        comm_type_keywords.put("call", new String[]{"تماس","مکالمه"});
+        comm_type_keywords.put("sms", new String[]{"پیامک"});
+        comm_type_keywords.put("internet", new String[]{"اینترنت","ااانت "," نتااا"," نت ","حجم"});
+
 
         ///////////////////////////////////////////////////////
         //////////////// Special Keyword stage ////////////////
