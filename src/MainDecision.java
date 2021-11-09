@@ -1,5 +1,7 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class MainDecision {
     public static boolean all_kw_match(String sentence, String[] kw_list) {
@@ -13,7 +15,7 @@ public class MainDecision {
         return res;
     }
 
-    public boolean any_kw_match(String sentence, String[] kw_list) {
+    public static boolean any_kw_match(String sentence, String[] kw_list) {
         boolean res = false;
         for (String s : kw_list) {
             if (!sentence.contains(s)) {
@@ -159,43 +161,58 @@ public class MainDecision {
         for (String s : Preprocess.vip_keywords.keySet()) {
             ArrayList<Boolean> match_result = new ArrayList<>();
             for (String[] strings : Preprocess.vip_keywords.get(s)) {
-                boolean temp = all_kw_match(sentence,strings);
+                boolean temp = all_kw_match(sentence, strings);
                 match_result.add(temp);
             }
-            if (match_result.contains(true)){
-                rule_based_probs.replace(s,rule_based_probs.get(s)+vip_score);
+            if (match_result.contains(true)) {
+                rule_based_probs.replace(s, rule_based_probs.get(s) + vip_score);
                 if (!vip_detected) {
                     vip_detected = true;
-                }
-                else {
+                } else {
                     is_there_conflict = true;
                 }
             }
         }
-        HashMap<String,String []> action_type_keywords = new HashMap<>();
-        HashMap<String,String []> comm_type_keywords = new HashMap<>();
+        HashMap<String, String[]> action_type_keywords = new HashMap<>();
+        HashMap<String, String[]> comm_type_keywords = new HashMap<>();
 
-        action_type_keywords.put("demand", new String[]{"میخوام","بخر","خرید","تقاضا","بگیر",
-                "خواستار","افزایش","تهیه","دریافت","کاهش"});
-        action_type_keywords.put("status", new String[]{"ببین","مشاهده","دیدن"," چک ","چقدر","وضعیت",
-                "باقیمانده","مانده","اااچه "," چه ","نمایش","چند","نشان","آیا "});
-        action_type_keywords.put("price", new String[]{"ریال","تومان","تومن"});
+        action_type_keywords.put("demand", new String[]{"میخوام", "بخر", "خرید", "تقاضا", "بگیر",
+                "خواستار", "افزایش", "تهیه", "دریافت", "کاهش"});
+        action_type_keywords.put("status", new String[]{"ببین", "مشاهده", "دیدن", " چک ", "چقدر", "وضعیت",
+                "باقیمانده", "مانده", "اااچه ", " چه ", "نمایش", "چند", "نشان", "آیا "});
+        action_type_keywords.put("price", new String[]{"ریال", "تومان", "تومن"});
 
-        comm_type_keywords.put("call", new String[]{"تماس","مکالمه"});
+        comm_type_keywords.put("call", new String[]{"تماس", "مکالمه"});
         comm_type_keywords.put("sms", new String[]{"پیامک"});
-        comm_type_keywords.put("internet", new String[]{"اینترنت","ااانت "," نتااا"," نت ","حجم"});
+        comm_type_keywords.put("internet", new String[]{"اینترنت", "ااانت ", " نتااا", " نت ", "حجم"});
 
 
         ///////////////////////////////////////////////////////
         //////////////// Special Keyword stage ////////////////
         ///////////////////////////////////////////////////////
 
-        String[] special_kw_farsi = new String[]{"صورتحساب","شارژ","باشگاه","بسته"};
-        String[] special_category = new String[]{"BILL","CHARGE","CLUB","PACKAGE"};
+        String[] special_kw_farsi = new String[]{"صورتحساب", "شارژ", "باشگاه", "بسته"};
+        String[] special_category = new String[]{"BILL", "CHARGE", "CLUB", "PACKAGE"};
 
-        Set<String> curr_sc_1;
-
-        return rule_based_probs;
+        TreeSet<String> curr_sc_1 = new TreeSet<String>();
+        TreeSet<String> curr_sc_2 = new TreeSet<String>();
+        for (int i = 0; i < special_kw_farsi.length; i++) {
+            if (sentence.contains(special_kw_farsi[i])) {
+                for (String subcat : cat2subcat.get(special_category[i])) {
+                    curr_sc_1.add(subcat);
+                }
+                if (special_kw_farsi[i].equals("شارژ")) {
+                    boolean charge_local_flag = false;
+                    if (any_kw_match(sentence, new String[] {"فرست", "منتقل", "انتقال"}) && !charge_local_flag) {
+                        curr_sc_2.add("TRANSFER_CREDIT");
+                        curr_sc_1.add("TRANSFER_CREDIT");
+                        charge_local_flag = true;
+                    }
+                    
+                }
+            }
+        }
+            return rule_based_probs;
 
     }
 
