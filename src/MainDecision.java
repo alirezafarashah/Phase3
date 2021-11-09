@@ -25,7 +25,8 @@ public class MainDecision {
 
     static double vip_score = 20;
     static double special_score = 5;
-    static double epsilon = (double) (1.0 / 48);
+    static double epsilon = (1.0 / 48);
+    static double exponent = 3;
 
     static HashMap<String, String> subcat2cat = new HashMap<>() {{
 
@@ -317,7 +318,32 @@ public class MainDecision {
         ///////////////////////////////////////////////////////
         ///////////////////// Finalization/////////////////////
         ///////////////////////////////////////////////////////
-        
+        for (String key : rule_based_probs.keySet()) {
+            rule_based_probs.put(key, rule_based_probs.get(key) + epsilon);
+            rule_based_probs.put(key, Math.pow(rule_based_probs.get(key), exponent));
+        }
+        double temp_sum = sumDouble(rule_based_probs.values());
+        for (String key : rule_based_probs.keySet()) {
+            rule_based_probs.put(key, rule_based_probs.get(key) / temp_sum);
+        }
+        ///////////////////////////////////////////////////////
+        //////////////// here comes the OTHER!/////////////////
+        ///////////////////////////////////////////////////////
+        if (Collections.max(rule_based_probs.values()) <= 5 * epsilon) {
+            rule_based_probs.put("OTHER", 48.0);
+            for (String key : rule_based_probs.keySet()) {
+                if (!key.equals("OTHER")) {
+                    rule_based_probs.put(key, 1.0);
+                }
+            }
+            for (String key : rule_based_probs.keySet()) {
+                rule_based_probs.put(key, Math.pow(rule_based_probs.get(key), exponent));
+            }
+            temp_sum = sumDouble(rule_based_probs.values());
+            for (String key : rule_based_probs.keySet()) {
+                rule_based_probs.put(key, rule_based_probs.get(key) / temp_sum);
+            }
+        }
 
         return rule_based_probs;
 
