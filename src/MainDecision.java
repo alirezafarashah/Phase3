@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainDecision {
@@ -238,8 +237,32 @@ public class MainDecision {
 
 
 
+        ///////////////////////////////////////////////////////
+        //////////////// Special Keyword stage ////////////////
+        ///////////////////////////////////////////////////////
 
-        return rule_based_probs;
+        String[] special_kw_farsi = new String[]{"صورتحساب", "شارژ", "باشگاه", "بسته"};
+        String[] special_category = new String[]{"BILL", "CHARGE", "CLUB", "PACKAGE"};
+
+        TreeSet<String> curr_sc_1 = new TreeSet<String>();
+        TreeSet<String> curr_sc_2 = new TreeSet<String>();
+        for (int i = 0; i < special_kw_farsi.length; i++) {
+            if (sentence.contains(special_kw_farsi[i])) {
+                for (String subcat : cat2subcat.get(special_category[i])) {
+                    curr_sc_1.add(subcat);
+                }
+                if (special_kw_farsi[i].equals("شارژ")) {
+                    boolean charge_local_flag = false;
+                    if (any_kw_match(sentence, new String[] {"فرست", "منتقل", "انتقال"}) && !charge_local_flag) {
+                        curr_sc_2.add("TRANSFER_CREDIT");
+                        curr_sc_1.add("TRANSFER_CREDIT");
+                        charge_local_flag = true;
+                    }
+
+                }
+            }
+        }
+            return rule_based_probs;
 
     }
 
