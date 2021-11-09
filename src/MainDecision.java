@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainDecision {
@@ -151,7 +150,7 @@ public class MainDecision {
         sentence = Preprocess.arabic2farsi_plural_replacement(sentence);
         sentence = Preprocess.word_concatenation(sentence);
         sentence = Preprocess.ha_hay_removal(sentence);
-        sentence ="ااا" + sentence + "ااا";
+        sentence = "ااا" + sentence + "ااا";
 
         boolean is_there_conflict = false;
         boolean vip_detected = false;
@@ -184,6 +183,8 @@ public class MainDecision {
         comm_type_keywords.put("call", new String[]{"تماس","مکالمه"});
         comm_type_keywords.put("sms", new String[]{"پیامک"});
         comm_type_keywords.put("internet", new String[]{"اینترنت","ااانت "," نتااا"," نت ","حجم"});
+
+
 
         return rule_based_probs;
 
