@@ -418,8 +418,13 @@ public class Preprocess {
         return sentence.replace("\u200c", " ");
     }
 
+
     public static String arabic2farsi_plural_replacement(String sentence) {
-        //TODO
+        for (int i = 0; i < arabic2farsi_plurals.get("arabic").length; i++) {
+            for (String s : arabic2farsi_plurals.get("arabic")[i]) {
+                sentence = sentence.replace(s, arabic2farsi_plurals.get("farsi")[i][0]);
+            }
+        }
         return sentence;
     }
 
