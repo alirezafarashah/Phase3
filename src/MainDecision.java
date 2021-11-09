@@ -208,7 +208,9 @@ public class MainDecision {
                         curr_sc_1.add("TRANSFER_CREDIT");
                         charge_local_flag = true;
                     }
-                    
+                    if (action_type_flag['demand'] == 1 || action_type_flag['price'] == 1 && !charge_local_flag):
+                    curr_sc_2.add("BUY_CHARGE");
+                    charge_local_flag = true;
                 }
             }
         }
