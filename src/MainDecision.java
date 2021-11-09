@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class MainDecision {
     public static boolean all_kw_match(String sentence, String[] kw_list) {
@@ -26,9 +23,9 @@ public class MainDecision {
         return res;
     }
 
-    static int vip_score = 20;
-    static int special_score = 5;
-    static float epsilon = (float) (1.0 / 48);
+    static double vip_score = 20;
+    static double special_score = 5;
+    static double epsilon = (double) (1.0 / 48);
 
     static HashMap<String, String> subcat2cat = new HashMap<>() {{
 
@@ -144,10 +141,10 @@ public class MainDecision {
         }
     };
 
-    public static HashMap<String, Float> decisions_probs(String sentence) {
-        HashMap<String, Float> rule_based_probs = new HashMap<>();
+    public static HashMap<String, Double> decisions_probs(String sentence) {
+        HashMap<String, Double> rule_based_probs = new HashMap<>();
         for (String s : subcats) {
-            rule_based_probs.put(s, (float) 0.0);
+            rule_based_probs.put(s, 0.0);
         }
         sentence = Preprocess.nim_fasele_removal(sentence);
         sentence = Preprocess.arabic2farsi_plural_replacement(sentence);
@@ -208,13 +205,13 @@ public class MainDecision {
 
 /////////////////////////////////
         if (rule_based_probs.get("SUPPORT_NETWORK_AREA") != 0 && rule_based_probs.get("BUY_NET_PACKAGE") != 0) {
-            rule_based_probs.replace("BUY_NET_PACKAGE", 0.0F);
+            rule_based_probs.replace("BUY_NET_PACKAGE", 0.0);
         }
         if (rule_based_probs.get("SURVEY") != 0 && rule_based_probs.get("SUGGESTIONS") != 0) {
-            rule_based_probs.replace("SUGGESTIONS", 0.0F);
+            rule_based_probs.replace("SUGGESTIONS", 0.0);
         }
         if (rule_based_probs.get("SIM_STATUS") != 0 && any_kw_match(sentence, new String[]{"شارژ", "مصرف"})) {
-            rule_based_probs.replace("SIM_STATUS", 0.0F);
+            rule_based_probs.replace("SIM_STATUS", 0.0);
         }
 
 
@@ -252,7 +249,7 @@ public class MainDecision {
                 }
                 if (special_kw_farsi[i].equals("شارژ")) {
                     boolean charge_local_flag = false;
-                    if (any_kw_match(sentence, new String[]{"فرست", "منتقل", "انتقال"}) && !charge_local_flag) {
+                    if (any_kw_match(sentence, new String[]{"فرست", "منتقل", "انتقال"})) {
                         curr_sc_2.add("TRANSFER_CREDIT");
                         curr_sc_1.add("TRANSFER_CREDIT");
                         charge_local_flag = true;
@@ -261,12 +258,85 @@ public class MainDecision {
                         curr_sc_2.add("BUY_CHARGE");
                         charge_local_flag = true;
                     }
-
+                    if (action_type_flag.get("status") == 1 && !charge_local_flag) {
+                        curr_sc_2.add("CHARGE_REMAINS");
+                        charge_local_flag = true;
+                    }
                 }
+                if (special_kw_farsi[i].equals("بسته")) {
+                    rule_based_probs.put("BUY_PACKAGE", rule_based_probs.get("BUY_PACKAGE") + 0.25 * special_score);
+                    if ((action_type_flag.get("status") == 1 && sum(action_type_flag.values()) == 1) || sentence.contains("من") || sentence.contains("فعال")) {
+                        curr_sc_2.add("ACTIVE_PACKAGE");
+                    }
+                    if ((sum(comm_type_flag.values()) == 0 && (action_type_flag.get("demand") == 1) || action_type_flag.get("price") == 1)) {
+                        curr_sc_2.add("BUY_CHARGE");
+                    }
+                    if (comm_type_flag.get("internet") == 1 && sum(comm_type_flag.values()) == 1) {
+                        curr_sc_2.add("BUY_NET_PACKAGE");
+                    }
+                    if (comm_type_flag.get("call") == 1 && sum(comm_type_flag.values()) == 1) {
+                        curr_sc_2.add("BUY_VOICE_PACKAGE");
+                    }
+                    if (comm_type_flag.get("sms") == 1 && sum(comm_type_flag.values()) == 1) {
+                        curr_sc_2.add("BUY_SMS_PACKAGE");
+                    }
+                    if (sum(comm_type_flag.values()) > 1) {
+                        curr_sc_2.add("BUY_DESIRED_PACKAGE");
+                    }
+                }
+                if (special_kw_farsi[i].equals("صورتحساب")) {
+                    if (action_type_flag.get("status") == 1)
+                        curr_sc_2.add("FINAL_TERM");
+                }
+                if (special_kw_farsi[i].equals("باشگاه")) {
+                    if (any_kw_match(sentence, new String[]{"دعوت", "اعضا", "عضو"})) {
+                        curr_sc_2.add("CLUB_INVITE");
+                    }
+                    if (any_kw_match(sentence, new String[]{"گزارش"})) {
+                        curr_sc_2.add("CLUB_REPORTS");
+                    }
+                }
+
             }
         }
+        for (String key : curr_sc_1) {
+            rule_based_probs.put(key, rule_based_probs.get(key) + special_score);
+        }
+        for (String key : curr_sc_2) {
+            rule_based_probs.put(key, rule_based_probs.get(key) + special_score);
+        }
+
+        ///////////////////////////////////////////////////////
+        ///////////////// No VIP, No Special //////////////////
+        ///////////////////////////////////////////////////////
+        if (sumDouble(rule_based_probs.values()) == 0) {
+            if (comm_type_flag.get("internet") == 1 || any_kw_match(sentence, new String[]{"باقی", "حجم", "مصرف"})) {
+                rule_based_probs.put("ACTIVE_PACKAGE", rule_based_probs.get("ACTIVE_PACKAGE") + special_score);
+            }
+        }
+        ///////////////////////////////////////////////////////
+        ///////////////////// Finalization/////////////////////
+        ///////////////////////////////////////////////////////
+        
+
         return rule_based_probs;
 
+    }
+
+    private static int sum(Collection<Integer> values) {
+        int sum = 0;
+        for (Integer value : values) {
+            sum += value;
+        }
+        return sum;
+    }
+
+    private static double sumDouble(Collection<Double> values) {
+        double sum = 0;
+        for (Double value : values) {
+            sum += value;
+        }
+        return sum;
     }
 
 }
