@@ -1,5 +1,10 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Preprocess {
 
@@ -65,6 +70,7 @@ public class Preprocess {
             });
         }
     };
+
     static HashMap<String, String[][]> vip_keywords = new HashMap<>() {
         {
             //############# FINAL_TERM
@@ -391,10 +397,80 @@ public class Preprocess {
         }
     };
 
+    public static void add_y_to_arabic() {
+        for (int i = 0; i < arabic2farsi_plurals.get("arabic").length; i++) {
+            ArrayList<String> my_list = new ArrayList<>(Arrays.asList(arabic2farsi_plurals.get("arabic")[i]));
+            ArrayList<String> res = new ArrayList<>(my_list);
+            for (String s : my_list) {
+                boolean contains = my_list.contains(s + "ی");
+                if (!contains) {
+                    res.add(s + "ی");
+                }
+            }
+            arabic2farsi_plurals.get("arabic")[i] = res.toArray(new String[0]);
+        }
+    }
+
+    public static HashMap<String, ArrayList<Double>> sub_wordak = new HashMap<>();
+
+    public static void read_wordak() {
+        String text = "";
+        try {
+            text = new String(Files.readAllBytes(Paths.get("sub_wordak.txt")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] tokens = text.split("\\),");
+        for (String token : tokens) {
+            String key = token.split(":")[0];
+            key = key.substring(2, key.length() - 1);
+            token = token.substring(token.indexOf('[') + 1, token.indexOf(']'));
+            String[] numbers = token.split(",(\\s|\\n)");
+            ArrayList<Double> vector = new ArrayList<>();
+            for (String number : numbers) {
+                vector.add(Double.parseDouble(number));
+            }
+            sub_wordak.put(key, vector);
+        }
+
+    }
+
+    public static String replace_by_legal_subword(String sentence) {
+        HashSet<String> legal_words = new HashSet<>(sub_wordak.keySet());
+        String[] words = sentence.split(" ");
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < words.length; i++) {
+            if (legal_words.contains(words[i])) {
+                int curr_max = 0;
+                String replacement = "[نامعلوم]";
+                for (String legalWord : legal_words) {
+                    if (words[i].contains(legalWord) && legalWord.length() > curr_max) {
+                        replacement = legalWord;
+                        curr_max = legalWord.length();
+                    }
+                }
+                if ((words[i].length() - replacement.length()) / (words[i].length() * 1.0) <= 0.5) {
+                    words[i] = replacement;
+                } else {
+                    words[i] = "[نامعلوم]";
+                }
+                res.append(words[i]).append(" ");
+            }
+        }
+        return res.toString().trim();
+
+    }
+
     public static void main(String[] args) {
-        System.out.println("hey");
-        System.out.println("a\u200cb");
-        System.out.println(vip_keywords.get("INCREASE_CREDIT")[0][0]);
+        read_wordak();
+        System.out.println(sub_wordak.get("آئینی"));
+        System.out.println(replace_by_legal_subword("سلام خخ میخوام"));
+//        System.out.println("hey");
+//        System.out.println("a\u200cb");
+//        System.out.println(vip_keywords.get("INCREASE_CREDIT")[0][0]);
+//        add_y_to_arabic();
+//        System.out.println(Arrays.toString(arabic2farsi_plurals.get("arabic")[0]));
+
     }
 
     public static String nim_fasele_removal(String sentence) {
